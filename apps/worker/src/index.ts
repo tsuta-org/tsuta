@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { D1Adapter, PlatformFactory } from '@tsuta/core'
 import { authMiddleware, requireAuth } from './middleware/auth'
+import { errorHandler } from './middleware/error'
 import type { AuthEnv } from './middleware/auth'
 
 export interface Env {
@@ -13,6 +14,8 @@ export interface Env {
 
 const app = new Hono<{ Bindings: Env; Variables: AuthEnv['Variables'] }>()
 
+app.use('*', errorHandler)
+
 // Register adapters
 PlatformFactory.register('cloudflare', {
   createPlatform: (config: Env) => {
@@ -20,9 +23,9 @@ PlatformFactory.register('cloudflare', {
     return {
       platform: 'cloudflare',
       database: dbAdapter.createDatabase({ db: config.DB }),
-      storage: {} as any, // TODO: implement R2 adapter
-      cache: {} as any,    // TODO: implement KV adapter
-      queue: {} as any,    // TODO: implement Queue adapter
+      storage: {} as any,
+      cache: {} as any,
+      queue: {} as any,
     } as any
   }
 })
@@ -30,16 +33,16 @@ PlatformFactory.register('cloudflare', {
 app.use('*', authMiddleware)
 
 app.get('/', (c) => {
-  return c.json({ name: 'tsuta', status: 'ok' })
+  return c.json({ success: true, data: { name: 'tsuta', status: 'ok' } })
 })
 
 app.get('/health', (c) => {
-  return c.json({ status: 'healthy' })
+  return c.json({ success: true, data: { status: 'healthy' } })
 })
 
 app.get('/me', requireAuth, (c) => {
   const auth = c.get('auth')
-  return c.json({ userId: auth.userId })
+  return c.json({ success: true, data: { userId: auth.userId } })
 })
 
 export default app
