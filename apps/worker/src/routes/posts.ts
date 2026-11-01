@@ -1,28 +1,51 @@
 import { Hono } from 'hono'
 import { requireAuth } from '../middleware/auth'
-import { successResponse } from '@tsuta/core'
+import { successResponse, BadRequestError } from '@tsuta/core'
+import { posts } from '../db/schema'
+import { drizzle } from 'drizzle-orm/d1'
+import { desc, eq } from 'drizzle-orm'
 
-const posts = new Hono()
+const statuses = new Hono()
 
-posts.get('/', async (c) => {
-  return c.json(successResponse([]))
+statuses.get('/', async (c) => {
+  const db = drizzle(c.env.DB)
+  const result = await db.select().from(posts).orderBy(desc(posts.createdAt)).limit(20).all()
+  return c.json(result)
 })
 
-posts.post('/', requireAuth, async (c) => {
-  // TODO: implement create post
-  return c.json(successResponse({ message: 'not implemented' }), 201)
+statuses.post('/', requireAuth, async (c) => {
+  const db = drizzle(c.env.DB)
+  const auth = c.get('auth')
+  const body = await c.req.json().catch(() => ({}))
+  const { status } = body
+
+  if (!status || status.trim() === '') {
+    throw new BadRequestError('status required')
+  }
+
+  const id = crypto.randomUUID()
+  await db.insert(posts).values({ id, authorId: auth.userId!, content: status }).run()
+
+  const post = await db.select().from(posts).where(eq(posts.id, id)).get()
+  return c.json(post, 201)
 })
 
-posts.get('/:id', async (c) => {
-  return c.json(successResponse({ message: 'not implemented' }))
+statuses.get('/:id', async (c) => {
+  const db = drizzle(c.env.DB)
+  const id = c.req.param('id')
+  const post = await db.select().from(posts).where(eq(posts.id, id)).get()
+  if (!post) {
+    return c.json({ error: 'not found' }, 404)
+  }
+  return c.json(post)
 })
 
-posts.post('/:id/like', requireAuth, async (c) => {
-  return c.json(successResponse({ message: 'not implemented' }))
+statuses.post('/:id/favourite', requireAuth, async (c) => {
+  return c.json({ favourited: true })
 })
 
-posts.delete('/:id/like', requireAuth, async (c) => {
-  return c.json(successResponse({ message: 'not implemented' }))
+statuses.post('/:id/unfavourite', requireAuth, async (c) => {
+  return c.json({ favourited: false })
 })
 
-export { posts }
+export { statuses }
