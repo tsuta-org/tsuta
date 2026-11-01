@@ -4,6 +4,7 @@ import { authMiddleware, requireAuth } from './middleware/auth'
 import { errorHandler } from './middleware/error'
 import { accounts } from './routes/accounts'
 import { statuses } from './routes/posts'
+import { timelines } from './routes/timelines'
 import type { AuthEnv } from './middleware/auth'
 
 export interface Env {
@@ -36,6 +37,7 @@ app.use('*', authMiddleware)
 
 app.route('/api/v1/accounts', accounts)
 app.route('/api/v1/statuses', statuses)
+app.route('/api/v1/timelines', timelines)
 
 app.get('/', (c) => {
   return c.json({ success: true, data: { name: 'tsuta', status: 'ok' } })
