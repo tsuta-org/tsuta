@@ -1,0 +1,46 @@
+{
+  "name": "tsuta",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tsuta-db",
+      "database_id": "local"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "local"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "tsuta-media"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REALTIME",
+        "class_name": "RealtimeDO"
+      }
+    ]
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "DELIVERY_QUEUE",
+        "queue": "tsuta-delivery"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "tsuta-delivery"
+      }
+    ]
+  }
+}
