@@ -15,3 +15,10 @@ export const posts = sqliteTable('posts', {
   content: text('content').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
+
+export const follows = sqliteTable('follows', {
+  id: text('id').primaryKey(),
+  followerId: text('follower_id').notNull().references(() => users.id),
+  followingId: text('following_id').notNull().references(() => users.id),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
