@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { requireAuth } from '../middleware/auth'
 import { successResponse, BadRequestError } from '@tsuta/core'
-import { posts } from '../db/schema'
+import { posts, likes } from '../db/schema'
 import { drizzle } from 'drizzle-orm/d1'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, and } from 'drizzle-orm'
 
 const statuses = new Hono()
 
@@ -41,10 +41,33 @@ statuses.get('/:id', async (c) => {
 })
 
 statuses.post('/:id/favourite', requireAuth, async (c) => {
+  const db = drizzle(c.env.DB)
+  const auth = c.get('auth')
+  const postId = c.req.param('id')
+  const userId = auth.userId!
+
+  const existing = await db.select().from(likes)
+    .where(and(eq(likes.userId, userId), eq(likes.postId, postId)))
+    .get()
+
+  if (!existing) {
+    const id = crypto.randomUUID()
+    await db.insert(likes).values({ id, userId, postId }).run()
+  }
+
   return c.json({ favourited: true })
 })
 
 statuses.post('/:id/unfavourite', requireAuth, async (c) => {
+  const db = drizzle(c.env.DB)
+  const auth = c.get('auth')
+  const postId = c.req.param('id')
+  const userId = auth.userId!
+
+  await db.delete(likes)
+    .where(and(eq(likes.userId, userId), eq(likes.postId, postId)))
+    .run()
+
   return c.json({ favourited: false })
 })
 
