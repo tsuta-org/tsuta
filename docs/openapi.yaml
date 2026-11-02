@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: Tsuta API
+  description: Tsuta API - Mastodon compatible federated social network
+  version: 0.0.0
+  license:
+    name: AGPL-3.0
+
+servers:
+  - url: https://api.tsuta.org
+    description: Production
+  - url: http://localhost:8787
+    description: Development
+
+paths:
+  /api/v1/instance:
+    get:
+      summary: Instance information
+      responses:
+        '200':
+          description: Instance info
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/v1/apps:
+    post:
+      summary: Create an application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_name:
+                  type: string
+                redirect_uris:
+                  type: string
+      responses:
+        '200':
+          description: App created
+
+  /api/v1/accounts/register:
+    post:
+      summary: Register account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                displayName:
+                  type: string
+      responses:
+        '201':
+          description: Account created
+
+  /api/v1/statuses:
+    get:
+      summary: Public timeline
+      responses:
+        '200':
+          description: List of statuses
+    post:
+      summary: Post a status
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+      responses:
+        '201':
+          description: Status created
+
+  /api/v1/timelines/public:
+    get:
+      summary: Public timeline
+      responses:
+        '200':
+          description: Timeline
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
