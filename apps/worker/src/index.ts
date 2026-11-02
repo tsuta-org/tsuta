@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/error'
 import { accounts } from './routes/accounts'
 import { statuses } from './routes/posts'
 import { timelines } from './routes/timelines'
+import { apps } from './routes/apps'
 import type { AuthEnv } from './middleware/auth'
 
 export interface Env {
@@ -38,6 +39,7 @@ app.use('*', authMiddleware)
 app.route('/api/v1/accounts', accounts)
 app.route('/api/v1/statuses', statuses)
 app.route('/api/v1/timelines', timelines)
+app.route('/api/v1/apps', apps)
 
 app.get('/', (c) => {
   return c.json({ success: true, data: { name: 'tsuta', status: 'ok' } })
@@ -50,6 +52,34 @@ app.get('/health', (c) => {
 app.get('/api/v1/accounts/verify_credentials', requireAuth, async (c) => {
   const auth = c.get('auth')
   return c.json({ id: auth.userId, username: 'user' })
+})
+
+app.get('/api/v1/instance', (c) => {
+  return c.json({
+    uri: 'tsuta.local',
+    title: 'Tsuta',
+    description: 'A lightweight federated social network',
+    version: '0.0.0',
+    urls: {},
+    stats: { user_count: 0, status_count: 0, domain_count: 0 },
+    thumbnail: null,
+    languages: ['en'],
+    registrations: true,
+    approval_required: false,
+    invites_enabled: false,
+    configuration: {
+      statuses: { max_characters: 500, max_media_attachments: 4 },
+      media_attachments: { supported_mime_types: ['image/jpeg', 'image/png', 'image/gif'], image_size_limit: 10485760 },
+    },
+  })
+})
+
+app.get('/api/v2/instance', (c) => {
+  return c.json({
+    domain: 'tsuta.local',
+    title: 'Tsuta',
+    version: '0.0.0',
+  })
 })
 
 export default app

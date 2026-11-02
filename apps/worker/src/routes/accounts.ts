@@ -59,3 +59,7 @@ accounts.post('/:id/unfollow', requireAuth, async (c) => {
 })
 
 export { accounts }
+
+accounts.get('/app', async (c) => {
+  return c.json({ error: 'not implemented' }, 404)
+})
