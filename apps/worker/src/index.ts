@@ -8,6 +8,7 @@ import { timelines } from './routes/timelines'
 import { apps } from './routes/apps'
 import { webfinger } from './routes/activitypub/webfinger'
 import { actor } from './routes/activitypub/actor'
+import { nodeinfo } from './routes/wellknown/nodeinfo'
 import type { AuthEnv } from './middleware/auth'
 
 export interface Env {
@@ -43,6 +44,8 @@ app.route('/api/v1/statuses', statuses)
 app.route('/api/v1/timelines', timelines)
 app.route('/api/v1/apps', apps)
 app.route('/.well-known/webfinger', webfinger)
+app.route('/.well-known/nodeinfo', nodeinfo)
+app.route('/nodeinfo', nodeinfo)
 app.route('/users', actor)
 
 app.get('/', (c) => {
