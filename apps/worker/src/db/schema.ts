@@ -43,3 +43,10 @@ export const likes = sqliteTable('likes', {
   postId: text('post_id').notNull().references(() => posts.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
+
+export const reblogs = sqliteTable('reblogs', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  postId: text('post_id').notNull().references(() => posts.id),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});

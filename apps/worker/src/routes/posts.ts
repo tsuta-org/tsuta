@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { requireAuth } from '../middleware/auth'
 import { successResponse, BadRequestError } from '@tsuta/core'
-import { posts, likes } from '../db/schema'
+import { posts, likes, reblogs } from '../db/schema'
 import { drizzle } from 'drizzle-orm/d1'
 import { desc, eq, and } from 'drizzle-orm'
 
@@ -69,6 +69,37 @@ statuses.post('/:id/unfavourite', requireAuth, async (c) => {
     .run()
 
   return c.json({ favourited: false })
+})
+
+statuses.post('/:id/reblog', requireAuth, async (c) => {
+  const db = drizzle(c.env.DB)
+  const auth = c.get('auth')
+  const postId = c.req.param('id')
+  const userId = auth.userId!
+
+  const existing = await db.select().from(reblogs)
+    .where(and(eq(reblogs.userId, userId), eq(reblogs.postId, postId)))
+    .get()
+
+  if (!existing) {
+    const id = crypto.randomUUID()
+    await db.insert(reblogs).values({ id, userId, postId }).run()
+  }
+
+  return c.json({ reblogged: true })
+})
+
+statuses.post('/:id/unreblog', requireAuth, async (c) => {
+  const db = drizzle(c.env.DB)
+  const auth = c.get('auth')
+  const postId = c.req.param('id')
+  const userId = auth.userId!
+
+  await db.delete(reblogs)
+    .where(and(eq(reblogs.userId, userId), eq(reblogs.postId, postId)))
+    .run()
+
+  return c.json({ reblogged: false })
 })
 
 export { statuses }
