@@ -11,6 +11,7 @@ import { actor } from './routes/activitypub/actor'
 import { nodeinfo } from './routes/wellknown/nodeinfo'
 import { notifications } from './routes/notifications'
 import { search } from './routes/search'
+import { lists } from './routes/lists'
 import type { AuthEnv } from './middleware/auth'
 
 export interface Env {
@@ -48,6 +49,7 @@ app.route('/api/v1/apps', apps)
 app.route('/api/v1/notifications', notifications)
 app.route('/api/v2/search', search)
 app.route('/api/v1/search', search)
+app.route('/api/v1/lists', lists)
 app.route('/.well-known/webfinger', webfinger)
 app.route('/.well-known/nodeinfo', nodeinfo)
 app.route('/nodeinfo', nodeinfo)
