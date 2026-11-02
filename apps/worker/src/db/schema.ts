@@ -22,3 +22,17 @@ export const follows = sqliteTable('follows', {
   followingId: text('following_id').notNull().references(() => users.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
+
+export const blocks = sqliteTable('blocks', {
+  id: text('id').primaryKey(),
+  blockerId: text('blocker_id').notNull().references(() => users.id),
+  blockedId: text('blocked_id').notNull().references(() => users.id),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
+export const mutes = sqliteTable('mutes', {
+  id: text('id').primaryKey(),
+  muterId: text('muter_id').notNull().references(() => users.id),
+  mutedId: text('muted_id').notNull().references(() => users.id),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
