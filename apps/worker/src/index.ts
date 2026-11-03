@@ -8,6 +8,7 @@ import { timelines } from './routes/timelines'
 import { apps } from './routes/apps'
 import { webfinger } from './routes/activitypub/webfinger'
 import { actor } from './routes/activitypub/actor'
+import { inbox } from './routes/activitypub/inbox'
 import { nodeinfo } from './routes/wellknown/nodeinfo'
 import { notifications } from './routes/notifications'
 import { search } from './routes/search'
@@ -27,7 +28,6 @@ const app = new Hono<{ Bindings: Env; Variables: AuthEnv['Variables'] }>()
 
 app.use('*', errorHandler)
 
-// Register adapters
 PlatformFactory.register('cloudflare', {
   createPlatform: (config: Env) => {
     const dbAdapter = new D1Adapter()
@@ -56,6 +56,7 @@ app.route('/.well-known/webfinger', webfinger)
 app.route('/.well-known/nodeinfo', nodeinfo)
 app.route('/nodeinfo', nodeinfo)
 app.route('/users', actor)
+app.route('/users', inbox)
 
 app.get('/', (c) => {
   return c.json({ success: true, data: { name: 'tsuta', status: 'ok' } })
