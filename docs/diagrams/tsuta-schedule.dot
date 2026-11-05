@@ -1,0 +1,14 @@
+digraph Schedule {
+  rankdir=LR;
+  graph [bgcolor=white, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fillcolor="#f9f9f9", fontname="Helvetica", fontsize=9];
+  
+  M1 [label="1ヶ月目\nセキュリティレビュー", fillcolor="#ffe8e8"];
+  M2 [label="2ヶ月目\nプラグインシステム", fillcolor="#fff4e6"];
+  M3 [label="3ヶ月目\nTUI + 分離実行", fillcolor="#e8f4ff"];
+  M4 [label="4ヶ月目\nセキュリティ強化・連合", fillcolor="#f0f0ff"];
+  M5 [label="5ヶ月目\n統合テスト・安定化", fillcolor="#e8ffe8"];
+  M6 [label="6ヶ月目\n最終調整・デモ準備", fillcolor="#ffffe8"];
+  
+  M1 -> M2 -> M3 -> M4 -> M5 -> M6;
+}

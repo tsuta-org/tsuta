@@ -4,6 +4,7 @@ import { successResponse, BadRequestError } from '@tsuta/core'
 import { users, follows, blocks, mutes } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
+import { setCookie } from 'hono/cookie'
 
 const accounts = new Hono()
 
@@ -45,6 +46,11 @@ accounts.post('/login', async (c) => {
   }
 
   const token = crypto.randomUUID()
+  setCookie(c, 'token', token, {
+    httpOnly: true,
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+  })
   return c.json(successResponse({ token, user }))
 })
 

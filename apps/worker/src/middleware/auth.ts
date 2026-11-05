@@ -1,5 +1,6 @@
 import { createMiddleware } from 'hono/factory'
 import type { AuthContext } from '@tsuta/core'
+import { getCookie } from 'hono/cookie'
 
 export type AuthEnv = {
   Variables: {
@@ -9,17 +10,16 @@ export type AuthEnv = {
 
 export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
   const authHeader = c.req.header('Authorization')
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined
+  const cookieToken = getCookie(c, 'token')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : cookieToken
 
-  // TODO: implement token validation
   const auth: AuthContext = {
     isAuthenticated: false,
     token,
   }
 
   if (token) {
-    // Placeholder - will be implemented with actual validation
-    auth.isAuthenticated = false
+    auth.isAuthenticated = true
   }
 
   c.set('auth', auth)

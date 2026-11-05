@@ -1,0 +1,18 @@
+@startuml
+title Tsuta プラグインシステム
+
+participant "プラグイン" as P
+participant "プラグイン管理" as PM
+participant "権限チェック" as PC
+participant "監査ログ" as AL
+participant "分離実行環境" as PS
+
+P -> PM : アップロード
+PM -> PM : マニフェスト解析
+PM -> PC : 権限確認
+PC -> PM : 権限一覧
+PM -> PM : 管理者承認
+PM -> AL : 記録
+PM -> PS : 読み込み・実行
+PS -> AL : 実行ログ記録
+@enduml

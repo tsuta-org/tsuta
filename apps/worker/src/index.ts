@@ -111,23 +111,31 @@ app.get('/health', (c) => {
 })
 
 app.get('/login', (c) => {
+  const redirect = c.req.query('redirect') || '/'
   const html = `<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ログイン - Tsuta</title><style>body{font-family:sans-serif;max-width:400px;margin:40px auto;padding:20px}input{width:100%;padding:8px;margin:8px 0}button{padding:10px 20px}</style></head>
 <body>
   <h1>ログイン</h1>
+  <p>ログインが必要です</p>
   <form id="form">
     <input name="username" placeholder="ユーザー名" required>
     <button type="submit">ログイン</button>
   </form>
   <p><a href="/">戻る</a></p>
   <script>
+    const redirect = '${redirect}'
     document.getElementById('form').onsubmit = async (e) => {
       e.preventDefault()
       const form = new FormData(e.target)
       const res = await fetch('/api/v1/accounts/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:form.get('username')})})
       const data = await res.json()
-      alert(JSON.stringify(data))
+      if(res.ok && data.success) {
+        alert('ログインしました')
+        window.location.href = redirect
+      } else {
+        alert('ログインに失敗しました: ' + (data.error?.message || JSON.stringify(data)))
+      }
     }
   </script>
 </body>
@@ -153,7 +161,12 @@ app.get('/register', (c) => {
       const form = new FormData(e.target)
       const res = await fetch('/api/v1/accounts/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:form.get('username'), displayName:form.get('displayName')})})
       const data = await res.json()
-      alert(JSON.stringify(data))
+      if(res.ok && data.success) {
+        alert('登録成功！' + (data.data.isAdmin ? '（管理者として登録されました）' : ''))
+        window.location.href = '/login'
+      } else {
+        alert('登録に失敗しました: ' + (data.error?.message || JSON.stringify(data)))
+      }
     }
   </script>
 </body>
@@ -161,13 +174,22 @@ app.get('/register', (c) => {
   return c.html(html)
 })
 
-app.get('/admin', requireAuth, async (c) => {
+app.get('/admin', async (c) => {
+  const auth = c.get('auth')
+  if (!auth || !auth.isAuthenticated) {
+    return c.redirect('/login?redirect=/admin')
+  }
   const html = `<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>管理画面 - Tsuta</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:20px}</style></head>
 <body>
   <h1>管理画面</h1>
-  <p>管理者用画面</p>
+  <p>管理者用画面（ログイン済み）</p>
+  <ul>
+    <li>ユーザー管理</li>
+    <li>インスタンス設定</li>
+    <li>プラグイン管理</li>
+  </ul>
   <p><a href="/">戻る</a></p>
 </body>
 </html>`

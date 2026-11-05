@@ -1,0 +1,26 @@
+digraph Monorepo {
+  rankdir=TB;
+  graph [bgcolor=white, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fillcolor="#f9f9f9", fontname="Helvetica", fontsize=9];
+  
+  org [label="tsuta-org", shape=folder, fillcolor="#ffe8e8"];
+  
+  subgraph cluster_repos {
+    label="リポジトリ";
+    style=dashed;
+    color="#666666";
+    core [label="tsuta\n(コア)", fillcolor="#fff4e6"];
+    sdk [label="tsuta-sdk\n(SDK・型定義)", fillcolor="#e8f4ff"];
+    tui [label="tsuta-tui\n(TUI - Go)", fillcolor="#f0f0ff"];
+    site [label="tsuta-site\n(公式サイト - Astro)", fillcolor="#e8ffe8"];
+    plugins [label="tsuta-plugins\n(公式プラグイン)", fillcolor="#ffffe8"];
+  }
+  
+  org -> core;
+  org -> sdk;
+  org -> tui;
+  org -> site;
+  org -> plugins;
+  sdk -> plugins [style=dashed, label="使用"];
+  core -> sdk [style=dashed, label="依存"];
+}

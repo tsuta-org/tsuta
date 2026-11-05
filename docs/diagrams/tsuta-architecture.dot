@@ -1,0 +1,48 @@
+digraph Tsuta {
+  rankdir=LR;
+  graph [bgcolor=white, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fillcolor="#f9f9f9", fontname="Helvetica", fontsize=10];
+  edge [fontname="Helvetica", fontsize=9];
+  
+  subgraph cluster_clients {
+    label="クライアント";
+    style=dashed;
+    color="#666666";
+    Mastodon [label="Mastodonクライアント", fillcolor="#e8f4ff"];
+    TUI [label="TUIクライアント\n(Go + Bubble Tea)", fillcolor="#e8f4ff"];
+  }
+  
+  subgraph cluster_api {
+    label="API層";
+    style=dashed;
+    color="#666666";
+    API [label="Hono API\n(TypeScript)", fillcolor="#fff4e6"];
+    AP [label="ActivityPub", fillcolor="#fff4e6"];
+    MA [label="Mastodon API互換", fillcolor="#fff4e6"];
+  }
+  
+  subgraph cluster_core {
+    label="コア";
+    style=dashed;
+    color="#666666";
+    Core [label="プラットフォーム抽象化\n(@tsuta/core)", fillcolor="#f0f0ff"];
+    Plugin [label="プラグインシステム\n(権限・監査)", fillcolor="#f0f0ff"];
+  }
+  
+  subgraph cluster_runtime {
+    label="実行環境";
+    style=dashed;
+    color="#666666";
+    Workers [label="Cloudflare Workers\n(D1/R2/KV/DO/Queues)", fillcolor="#e8ffe8"];
+    Docker [label="Docker\n(SQLite/PostgreSQL)", fillcolor="#e8ffe8"];
+  }
+  
+  Mastodon -> API;
+  TUI -> API;
+  API -> AP;
+  API -> MA;
+  API -> Core;
+  Core -> Plugin;
+  Core -> Workers;
+  Core -> Docker;
+}

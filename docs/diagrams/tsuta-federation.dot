@@ -1,0 +1,17 @@
+digraph Federation {
+  rankdir=LR;
+  graph [bgcolor=white, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fillcolor="#f9f9f9", fontname="Helvetica", fontsize=10];
+  edge [fontname="Helvetica", fontsize=9, label="ActivityPub"];
+  
+  Tsuta1 [label="Tsutaサーバー A", fillcolor="#e8ffe8"];
+  Tsuta2 [label="Tsutaサーバー B", fillcolor="#e8ffe8"];
+  Mastodon [label="Mastodon", fillcolor="#e8f4ff"];
+  Pleroma [label="Pleroma/Akkoma", fillcolor="#e8f4ff"];
+  
+  Tsuta1 -> Tsuta2;
+  Tsuta1 -> Mastodon;
+  Tsuta2 -> Pleroma;
+  Mastodon -> Tsuta1;
+  Pleroma -> Tsuta2;
+}
