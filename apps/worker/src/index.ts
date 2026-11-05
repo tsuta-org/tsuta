@@ -85,11 +85,93 @@ app.route('/users', actor)
 app.route('/users', inbox)
 
 app.get('/', (c) => {
-  return c.json({ success: true, data: { name: 'tsuta', status: 'ok' } })
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tsuta</title>
+  <style>body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px}a{color:#0066cc}</style>
+</head>
+<body>
+  <h1>Tsuta（蔦）</h1>
+  <p>軽量分散SNS</p>
+  <ul>
+    <li><a href="/login">ログイン</a></li>
+    <li><a href="/register">登録</a></li>
+    <li><a href="/admin">管理画面</a></li>
+  </ul>
+</body>
+</html>`
+  return c.html(html)
 })
 
 app.get('/health', (c) => {
   return c.json({ success: true, data: { status: 'healthy' } })
+})
+
+app.get('/login', (c) => {
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ログイン - Tsuta</title><style>body{font-family:sans-serif;max-width:400px;margin:40px auto;padding:20px}input{width:100%;padding:8px;margin:8px 0}button{padding:10px 20px}</style></head>
+<body>
+  <h1>ログイン</h1>
+  <form id="form">
+    <input name="username" placeholder="ユーザー名" required>
+    <button type="submit">ログイン</button>
+  </form>
+  <p><a href="/">戻る</a></p>
+  <script>
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault()
+      const form = new FormData(e.target)
+      const res = await fetch('/api/v1/accounts/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:form.get('username')})})
+      const data = await res.json()
+      alert(JSON.stringify(data))
+    }
+  </script>
+</body>
+</html>`
+  return c.html(html)
+})
+
+app.get('/register', (c) => {
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>登録 - Tsuta</title><style>body{font-family:sans-serif;max-width:400px;margin:40px auto;padding:20px}input{width:100%;padding:8px;margin:8px 0}button{padding:10px 20px}</style></head>
+<body>
+  <h1>新規登録</h1>
+  <form id="form">
+    <input name="username" placeholder="ユーザー名" required>
+    <input name="displayName" placeholder="表示名">
+    <button type="submit">登録</button>
+  </form>
+  <p><a href="/">戻る</a></p>
+  <script>
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault()
+      const form = new FormData(e.target)
+      const res = await fetch('/api/v1/accounts/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:form.get('username'), displayName:form.get('displayName')})})
+      const data = await res.json()
+      alert(JSON.stringify(data))
+    }
+  </script>
+</body>
+</html>`
+  return c.html(html)
+})
+
+app.get('/admin', requireAuth, async (c) => {
+  const html = `<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>管理画面 - Tsuta</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:20px}</style></head>
+<body>
+  <h1>管理画面</h1>
+  <p>管理者用画面</p>
+  <p><a href="/">戻る</a></p>
+</body>
+</html>`
+  return c.html(html)
 })
 
 app.get('/api/v1/accounts/verify_credentials', requireAuth, async (c) => {
