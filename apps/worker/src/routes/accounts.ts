@@ -21,10 +21,13 @@ accounts.post('/register', async (c) => {
     throw new BadRequestError('username already taken')
   }
 
-  const id = crypto.randomUUID()
-  await db.insert(users).values({ id, username, displayName: displayName || username }).run()
+  const count = await db.select().from(users).all()
+  const isAdmin = count.length === 0
 
-  return c.json(successResponse({ id, username, displayName: displayName || username }), 201)
+  const id = crypto.randomUUID()
+  await db.insert(users).values({ id, username, displayName: displayName || username, isAdmin }).run()
+
+  return c.json(successResponse({ id, username, displayName: displayName || username, isAdmin }), 201)
 })
 
 accounts.post('/login', async (c) => {

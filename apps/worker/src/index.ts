@@ -24,6 +24,18 @@ export interface Env {
   DELIVERY_QUEUE: Queue
 }
 
+export class RealtimeDO {
+  state: DurableObjectState
+  env: Env
+  constructor(state: DurableObjectState, env: Env) {
+    this.state = state
+    this.env = env
+  }
+  async fetch() {
+    return new Response('ok')
+  }
+}
+
 const app = new Hono<{ Bindings: Env; Variables: AuthEnv['Variables'] }>()
 
 app.use('*', errorHandler)
@@ -52,6 +64,20 @@ app.route('/api/v2/search', search)
 app.route('/api/v1/search', search)
 app.route('/api/v1/lists', lists)
 app.route('/api/v1/media', media)
+app.get('/media/:id', async (c) => {
+  const id = c.req.param('id')
+  if (c.env.R2) {
+    const object = await c.env.R2.get(`media/${id}`)
+    if (!object) {
+      return c.json({ error: 'not found' }, 404)
+    }
+    const headers = new Headers()
+    object.writeHttpMetadata(headers)
+    headers.set('etag', object.httpEtag)
+    return new Response(object.body, { headers })
+  }
+  return c.json({ error: 'not found' }, 404)
+})
 app.route('/.well-known/webfinger', webfinger)
 app.route('/.well-known/nodeinfo', nodeinfo)
 app.route('/nodeinfo', nodeinfo)
